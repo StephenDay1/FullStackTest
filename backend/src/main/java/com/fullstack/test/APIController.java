@@ -15,17 +15,6 @@ public class APIController {
         this.repository = activityRepository;
     }
 
-////    TODO: Do I still need the ActivityRequest class?
-//    @PostMapping("/api/activity")
-//    public ActivityResponse activity(@RequestBody ActivityRequest request) {
-////        Activity saved = repository.save(new Activity(request.getDate(), request.getType(), request.getAmount(), request.getNotes()));
-//        String message = String.format("%s: $%.2f (%s)",
-//                request.getType(), request.getAmount(), request.getDate());
-//        System.out.println(message);
-//        System.out.println(repository.count());
-//        return new ActivityResponse(message, request.getNotes());
-//    }
-
     @PostMapping("/api/activities")
     public Activity createActivity(@RequestBody Activity activity) {
         return repository.save(activity);

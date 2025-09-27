@@ -10,6 +10,5 @@ import org.springframework.web.bind.annotation.*;
 public class TestApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(TestApplication.class, args);
-//        APIController controller = new APIController(new );
 	}
 }
