@@ -11,14 +11,46 @@ div {
 #time {
     font-size: 1.2rem;
     color: #333;
-    bottom: 0;
-    position: absolute;
+    right: 10px;
+    top: 0;
+    position: fixed;
 }
 
-form input[type=number] {
+/* form input[type=number] {
     width: 60px;
+} */
+
+form input {
+    width: calc(100% - 16px);
+    height: calc(100% - 16px);
+    margin: 0;
+    padding: 8px;
+    border: none;
+    font-family: sans-serif;
+    font-size: 16px;
 }
-/* Hide arrows */
+
+form input:focus, form select:focus {
+    /* outline: #333 solid 3px; */
+    outline: none;
+    background-color: #fbfbfb;
+}
+
+form select {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 8px;
+    border: none;
+    font-size: 16px;
+}
+
+#formRow th {
+    padding: 0;
+    height: calc(25px + 16px);
+}
+
+/* Hide arrows of number input */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -30,12 +62,63 @@ table {
     width: 100%;
     margin-top: 1rem;
 }
+thead > tr > th {
+    text-align: center;
+}
 th, td {
     border: 1px solid #ccc;
     padding: 0.5rem;
     text-align: left;
+    height: 25px;
 }
 th {
     background-color: #f2f2f2;
+}
+
+/* Date */
+tbody td:nth-child(1) {
+    /* padding: 0; */
+    text-align: center;
+    width: 70px;
+}
+
+/* Type */
+tbody td:nth-child(2) {
+    /* padding: 0; */
+    /* text-align: center; */
+    width: 90px;
+}
+
+/* Amount */
+tbody td:nth-child(3), #activityAmount {
+    /* padding: 0; */
+    text-align: right;
+    width: 80px;
+}
+
+/* No padding in edit column */
+tbody td:nth-child(5) {
+    padding: 0;
+    width: 70px;
+}
+
+.button_div {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+}
+
+.button_div button, #submitActivity {
+    height: 100%;
+    width: 100%;
+    border: none;
+}
+
+button:hover, button:focus {
+    /* background-color: #fbfbfb; */
+    color: #666;
+    outline: none;
 }
 

@@ -1,68 +1,120 @@
-// document.getElementById('activityForm').addEventListener('submit', function(e) {
-//     e.preventDefault();
-//     const date = document.getElementById('activityDate').value
-//     const type = document.getElementById('activityType').value
-//     const amount = document.getElementById('activityAmount').value;
-//     const notes = document.getElementById('activityNotes').value
-
-//     fetch('http://localhost:8080/api/activity', {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json'
-//         },
-//         body: JSON.stringify({
-//             date: date,
-//             type: type,
-//             amount: amount,
-//             notes: notes,
-//         })
-//     })
-//     .then(response => response.json())
-//     .then(data => {
-//         console.log(typeof(data.message))
-//         console.log(Object.values(data.message));
-//         // Object.values
-//         console.log(data.message["0"])
-//         console.log(data.message["2"])
-//         document.getElementById('responseBox').textContent = data.message["0"];
-//     })
-//     .catch(error => {
-//         document.getElementById('responseBox').textContent = "Error: " + error.message;
-//     });
-// });
-
-function loadActivitieLog() {
+function loadActivities() {
     fetch('http://localhost:8080/api/activities')
         .then(response => response.json())
         .then(data => {
             const tbody = document.querySelector('#activityTable tbody');
-            tbody.innerHTML = ''; // Clear existing rows
+            tbody.innerHTML = `
+                <tr id="formRow">
+                <th><input type="date" id="activityDate" name="activityDate" required></th>
+                <th><select id="activityType" name="activityType" required>
+                    <option value="Income">Income</option>
+                    <option value="Tithing">Tithing</option>
+                    <option value="Gas">Gas</option>
+                    <option value="Living">Living</option>
+                    <option value="Groceries">Groceries</option>
+                    <option value="Social">Social</option>
+                    <option value="Fun">Fun</option>
+                </select></th>
+                <th><input type="text" step=".01" id="activityAmount" name="activityAmount" placeholder="Amount" required /></th>
+                <th><input type="text" id="activityNotes" name="activityNotes" placeholder="Add notes" required></th>
+                <th><button type="submit" id="submitActivity"><i class="material-icons">check</i></button></th>
+                </tr>`; // Clear existing rows
             data.forEach(activity => {
                 const row = document.createElement('tr');
+
+                const [year, month, day] = activity.date.split("-").map(Number);
+                const localDate = new Date(year, month - 1, day); // month is 0-indexed
+                const options = { year: 'numeric', month: 'short', day: 'numeric' };
+                const formattedDate = localDate.toLocaleDateString('en-US', options); // Example for US English
                 row.innerHTML = `
-                    <td>${activity.date}</td>
+                    <td>${formattedDate}</td>
                     <td>${activity.type}</td>
                     <td>$${activity.amount.toFixed(2)}</td>
                     <td>${activity.notes}</td>
+                    <td><div class="button_div"> <button><i class="material-icons">edit</i></button>
+                    <button><i class="material-icons" onclick="deleteActivity(${activity.id})">delete</i></button></div></td>
                 `;
                 tbody.appendChild(row);
+                // parentNode.insertBefore(newChild, referenceChild);
+            });
+
+            // TODO should this code be run multiple times?
+            const currencyInput = document.getElementById('activityAmount');
+            currencyInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/[^0-9.]/g, ''); // Remove non-numeric except decimal
+                let parts = value.split('.');
+                let integerPart = parts[0];
+                let decimalPart = parts[1];
+
+                // Format integer part with commas
+                integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+                // Reconstruct the value
+                if (decimalPart !== undefined) {
+                    value = integerPart + '.' + decimalPart.substring(0, 2); // Limit to 2 decimal places
+                } else {
+                    value = integerPart;
+                }
+
+                e.target.value = '$' + value; // Add currency symbol
+                // console.log(value)
+                // e.target.value = value
+            });
+            currencyInput.addEventListener('focusout', function(e) {
+                // let value = e.target.value.replace(/[^0-9.]/g, ''); // Remove non-numeric except decimal
+                let value = e.target.value;
+                let parts = value.split('.');
+                let integerPart = parts[0];
+                let decimalPart = parts[1];
+                
+                if (integerPart == "" || integerPart == "$") {
+                    value = ""
+                } else if (decimalPart == undefined) {
+                    value = integerPart + ".00";
+                } else if (decimalPart.length == 1) {
+                    value = integerPart + '.' + decimalPart + "0"
+                } else {
+                    value = integerPart + '.' + decimalPart.substring(0, 2); // Limit to 2 decimal places
+                }
+
+                e.target.value = value;
             });
         });
 }
 // On initialize
-loadActivitieLog()
+loadActivities()
+
+function deleteActivity(id) {
+  fetch(`http://localhost:8080/api/activities/${id}`, {
+    method: 'DELETE'
+  })
+  .then(response => {
+    if (response.ok) {
+      loadActivities(); // Refresh table
+    } else {
+      console.error("Delete failed:", response.status);
+    }
+  });
+}
 
 
-
-// Call this after successful form submission
+// Runs after successful form submission
 document.getElementById('activityForm').addEventListener('submit', function(e) {
     e.preventDefault();
+    activityDateElement = document.getElementById('activityDate');
+    activityTypeElement = document.getElementById('activityType');
+    activityAmountElement = document.getElementById('activityAmount');
+    activityNotesElement = document.getElementById('activityNotes');
     const activity = {
-        date: document.getElementById('activityDate').value,
-        type: document.getElementById('activityType').value,
-        amount: parseFloat(document.getElementById('activityAmount').value),
-        notes: document.getElementById('activityNotes').value
+        date: activityDateElement.value,
+        type: activityTypeElement.value,
+        amount: parseFloat(activityAmountElement.value.substring(1)), // Remove the $ first
+        notes: activityNotesElement.value
     };
+
+    // Clear the amount and notes
+    activityAmountElement.value = ""
+    activityNotesElement.value = ""
 
     fetch('http://localhost:8080/api/activities', {
         method: 'POST',
@@ -71,6 +123,6 @@ document.getElementById('activityForm').addEventListener('submit', function(e) {
     })
     .then(response => response.json())
     .then(() => {
-        loadActivitieLog(); // Refresh the table
+        loadActivities(); // Refresh the table
     });
 });

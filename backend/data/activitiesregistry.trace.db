@@ -1,0 +1,12 @@
+2025-10-01 22:17:33.524145-06:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "ACTIVITY" not found (this database is empty); SQL statement:
+select a1_0.id,a1_0.amount,a1_0.date,a1_0.notes,a1_0.type from activity a1_0 [42104-232]
+2025-10-01 22:17:37.135934-06:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "ACTIVITY" not found (this database is empty); SQL statement:
+select a1_0.id,a1_0.amount,a1_0.date,a1_0.notes,a1_0.type from activity a1_0 [42104-232]
+2025-10-01 22:18:09.180707-06:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "ACTIVITY" not found (this database is empty); SQL statement:
+insert into activity (amount,date,notes,type,id) values (?,?,?,?,default) [42104-232]
+2025-10-01 22:18:09.201872-06:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "ACTIVITY" not found (this database is empty); SQL statement:
+select a1_0.id,a1_0.amount,a1_0.date,a1_0.notes,a1_0.type from activity a1_0 [42104-232]

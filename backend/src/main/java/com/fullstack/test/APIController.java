@@ -1,5 +1,6 @@
 package com.fullstack.test;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +24,16 @@ public class APIController {
     @GetMapping("/api/activities")
     public List<Activity> getAllActivities() {
         return repository.findAll();
+    }
+
+    @DeleteMapping("/api/activities/{id}")
+    public ResponseEntity<Void> deleteActivity(@PathVariable Long id) {
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
+            return ResponseEntity.noContent().build(); // 204 No Content
+        } else {
+            return ResponseEntity.notFound().build(); // 404 Not Found
+        }
     }
 
     @GetMapping("/api/time")
