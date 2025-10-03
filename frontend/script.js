@@ -5,8 +5,8 @@ function loadActivities() {
             const tbody = document.querySelector('#activityTable tbody');
             tbody.innerHTML = `
                 <tr id="formRow">
-                <th><input type="date" id="activityDate" name="activityDate" required></th>
-                <th><select id="activityType" name="activityType" required>
+                <td><input type="date" id="activityDate" name="activityDate" required></td>
+                <td><select id="activityType" name="activityType" required>
                     <option value="Income">Income</option>
                     <option value="Tithing">Tithing</option>
                     <option value="Gas">Gas</option>
@@ -15,9 +15,9 @@ function loadActivities() {
                     <option value="Social">Social</option>
                     <option value="Fun">Fun</option>
                 </select></th>
-                <th><input type="text" step=".01" id="activityAmount" name="activityAmount" placeholder="Amount" required /></th>
-                <th><input type="text" id="activityNotes" name="activityNotes" placeholder="Add notes" required></th>
-                <th><button type="submit" id="submitActivity"><i class="material-icons">check</i></button></th>
+                <td><input type="text" step=".01" id="activityAmount" name="activityAmount" placeholder="Amount" required /></td>
+                <td><input type="text" id="activityNotes" name="activityNotes" placeholder="Add notes" required></td>
+                <td><button type="submit" id="submitActivity"><i class="material-icons">check</i></button></td>
                 </tr>`; // Clear existing rows
             data.forEach(activity => {
                 const row = document.createElement('tr');
@@ -31,8 +31,7 @@ function loadActivities() {
                     <td>${activity.type}</td>
                     <td>$${activity.amount.toFixed(2)}</td>
                     <td>${activity.notes}</td>
-                    <td><div class="button_div"> <button><i class="material-icons">edit</i></button>
-                    <button><i class="material-icons" onclick="deleteActivity(${activity.id})">delete</i></button></div></td>
+                    <td><div class="button_div"><button><i class="material-icons" onclick="deleteActivity(${activity.id})">delete</i></button></div></td>
                 `;
                 tbody.appendChild(row);
                 // parentNode.insertBefore(newChild, referenceChild);

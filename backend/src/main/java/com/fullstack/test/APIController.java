@@ -3,9 +3,11 @@ package com.fullstack.test;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Comparator;
 import java.util.List;
 
 import java.time.LocalTime;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*") // Allows frontend to access this endpoint
 @RestController
@@ -23,7 +25,9 @@ public class APIController {
 
     @GetMapping("/api/activities")
     public List<Activity> getAllActivities() {
-        return repository.findAll();
+        return repository.findAll().stream()
+                .sorted(Comparator.comparing(Activity::getDate))
+                .collect(Collectors.toList());
     }
 
     @DeleteMapping("/api/activities/{id}")

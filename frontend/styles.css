@@ -45,7 +45,7 @@ form select {
     font-size: 16px;
 }
 
-#formRow th {
+#formRow td {
     padding: 0;
     height: calc(25px + 16px);
 }
@@ -76,30 +76,34 @@ th {
 }
 
 /* Date */
+td:has(#activityDate) {
+    width: 170px;
+}
 tbody td:nth-child(1) {
     /* padding: 0; */
     text-align: center;
-    width: 70px;
+    /* width: min-content; */
 }
 
 /* Type */
-tbody td:nth-child(2) {
-    /* padding: 0; */
-    /* text-align: center; */
-    width: 90px;
+td:has(#activityType) {
+    width: 100px;
 }
 
 /* Amount */
+td:has(#activityAmount) {
+    width: 80px;
+}
 tbody td:nth-child(3), #activityAmount {
     /* padding: 0; */
     text-align: right;
-    width: 80px;
+    /* width: 80px; */
 }
 
 /* No padding in edit column */
 tbody td:nth-child(5) {
     padding: 0;
-    width: 70px;
+    width: 41px;
 }
 
 .button_div {
@@ -114,11 +118,13 @@ tbody td:nth-child(5) {
     height: 100%;
     width: 100%;
     border: none;
+    padding: 0;
 }
 
 button:hover, button:focus {
     /* background-color: #fbfbfb; */
     color: #666;
     outline: none;
+    cursor: pointer;
 }
 
