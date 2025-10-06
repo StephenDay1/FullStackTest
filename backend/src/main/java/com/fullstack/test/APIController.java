@@ -1,8 +1,10 @@
 package com.fullstack.test;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 
@@ -39,6 +41,24 @@ public class APIController {
             return ResponseEntity.notFound().build(); // 404 Not Found
         }
     }
+
+    @GetMapping("/api/activities/filter")
+    public List<Activity> filterActivities(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
+            @RequestParam(required = false) List<String> types) {
+
+        if (start != null && types != null) {
+            return repository.findByDateBetweenAndTypeIn(start, end, types);
+        } else if (start != null && end != null) {
+            return repository.findByDateBetween(start, end);
+        } else if (types != null) {
+            return repository.findByTypeIn(types);
+        } else {
+            return repository.findAll();
+        }
+    }
+
 
     @GetMapping("/api/time")
     public String time() {

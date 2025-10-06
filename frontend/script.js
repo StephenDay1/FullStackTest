@@ -1,3 +1,25 @@
+function openTab(event, tabId) {
+    // Declare all variables
+    var i, tabWindow, tablinks;
+
+    // Get all elements with class="tabWindow" and hide them
+    tabWindow = document.getElementsByClassName("tabWindow");
+    for (i = 0; i < tabWindow.length; i++) {
+        tabWindow[i].style.display = "none";
+    }
+
+    // Get all elements with class="tablinks" and remove the class "active"
+    tablinks = document.getElementsByClassName("tabLink");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+
+    // Show the current tab, and add an "active" class to the button that opened the tab
+    document.getElementById(tabId).style.display = "block";
+    event.currentTarget.className += " active";
+}
+document.getElementById("default").click();
+
 function loadActivities() {
     fetch('http://localhost:8080/api/activities')
         .then(response => response.json())
@@ -8,16 +30,18 @@ function loadActivities() {
                 <td><input type="date" id="activityDate" name="activityDate" required></td>
                 <td><select id="activityType" name="activityType" required>
                     <option value="Income">Income</option>
+                    <option value="Other Income">Other Income</option>
                     <option value="Tithing">Tithing</option>
                     <option value="Gas">Gas</option>
                     <option value="Living">Living</option>
                     <option value="Groceries">Groceries</option>
                     <option value="Social">Social</option>
+                    <option value="Dates">Dates</option>
                     <option value="Fun">Fun</option>
                 </select></th>
                 <td><input type="text" step=".01" id="activityAmount" name="activityAmount" placeholder="Amount" required /></td>
                 <td><input type="text" id="activityNotes" name="activityNotes" placeholder="Add notes" required></td>
-                <td><button type="submit" id="submitActivity"><i class="material-icons">check</i></button></td>
+                <td><div class="button_div"><button type="submit" id="submitActivity"><i class="material-icons">check</i></button></div></td>
                 </tr>`; // Clear existing rows
             data.forEach(activity => {
                 const row = document.createElement('tr');
@@ -96,7 +120,6 @@ function deleteActivity(id) {
   });
 }
 
-
 // Runs after successful form submission
 document.getElementById('activityForm').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -123,5 +146,46 @@ document.getElementById('activityForm').addEventListener('submit', function(e) {
     .then(response => response.json())
     .then(() => {
         loadActivities(); // Refresh the table
+    });
+});
+
+// Summary
+document.getElementById('filterForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  const start = document.getElementById('startDate').value;
+  const end = document.getElementById('endDate').value;
+
+  const checkboxes = document.querySelectorAll('#filterForm input[type="checkbox"]:checked');
+  const types = Array.from(checkboxes).map(cb => cb.value);
+
+  if (!start || !end || types.length === 0) {
+    alert("Please select a date range and at least one type.");
+    return;
+  }
+
+  const params = new URLSearchParams();
+  params.append("start", start);
+  params.append("end", end);
+  types.forEach(type => params.append("types", type));
+
+  fetch(`http://localhost:8080/api/activities/filter?${params.toString()}`)
+    .then(response => response.json())
+    .then(data => {
+      const tbody = document.querySelector('#filteredTable tbody');
+      tbody.innerHTML = '';
+      data.forEach(activity => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${activity.date}</td>
+          <td>${activity.type}</td>
+          <td>${activity.amount}</td>
+          <td>${activity.notes}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    })
+    .catch(error => {
+      console.error("Error fetching filtered activities:", error);
     });
 });

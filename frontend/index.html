@@ -3,31 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Java Backend Test</title>
+    <title>Fullstack Test</title>
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="styles.css">
 
 </head>
 <body>
-    <h1>Activity Log</h1>
-    <form id="activityForm">
-    <table id="activityTable">
-        <thead>
-        <tr>
-            <th>Date</th>
-            <th>Type</th>
-            <th>Amount</th>
-            <th>Notes</th>
-            <th><i class="material-icons">edit</i></th>
-        </tr>
-        </thead>
-        <tbody>
-            <!-- This gets cleared by script.js -->
-        </tbody>
-    </table>
-    </form>
+    <h1>Finance Tracker</h1>
+    <div class="tabSelector">
+        <button id="default" class="tabLink" onclick="openTab(event, 'activityLog')">Activity Log</button>
+        <button class="tabLink" onclick="openTab(event, 'summary')">Summary</button>
+        <!-- <button class="tabLink"></button> -->
+    </div>
 
+    <div class="tabWindow" id="activityLog">
+        <h2>Activity Log</h2>
+        <form id="activityForm">
+        <table id="activityTable">
+            <thead>
+            <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Notes</th>
+                <th><i class="material-icons">edit</i></th>
+            </tr>
+            </thead>
+            <tbody>
+                <!-- This gets cleared by script.js -->
+            </tbody>
+        </table>
+        </form>
+    </div>
+
+    <div class="tabWindow" id="summary">
+        <h2>Summary</h2>
+        <div>Time range</div>
+        <form id="filterForm">
+            <label>Start Date: <input type="date" id="startDate"></label>
+            <label>End Date: <input type="date" id="endDate"></label>
+
+            <input type="checkbox" id="Income" name="Income" value="Income">
+            <label for="Income">Income</label><br>
+            <input type="checkbox" id="Other Income" name="Other Income" value="Other Income">
+            <label for="Other Income">Other Income</label><br>
+            <input type="checkbox" id="Tithing" name="Tithing" value="Tithing">
+            <label for="Tithing">Tithing</label><br>
+            <input type="checkbox" id="Gas" name="Gas" value="Gas">
+            <label for="Gas">Gas</label><br>
+            <input type="checkbox" id="Living" name="Living" value="Living">
+            <label for="Living">Living</label><br>
+            <input type="checkbox" id="Groceries" name="Groceries" value="Groceries">
+            <label for="Groceries">Groceries</label><br>
+            <input type="checkbox" id="Social" name="Social" value="Social">
+            <label for="Social">Social</label><br>
+            <input type="checkbox" id="Dates" name="Dates" value="Dates">
+            <label for="Dates">Dates</label><br>
+            <input type="checkbox" id="Fun" name="Fun" value="Fun">
+            <label for="Fun">Fun</label><br>
+
+            <button type="submit">Filter</button>
+        </form>
+
+        <table id="filteredTable">
+            <thead>
+            <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Notes</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+    </div>
+
+    <!-- Just a little status display -->
     <div id="time">Waiting for response...</div>
     <script>
         fetch('http://localhost:8080/api/time')

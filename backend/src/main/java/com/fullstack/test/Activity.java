@@ -2,20 +2,22 @@ package com.fullstack.test;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
+
 @Entity
 public class Activity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String date;
+    private LocalDate date;
     private String type;
     private float amount;
     private String notes;
 
     public Activity() {} // Required by JPA
 
-    public Activity(String date, String type, float amount, String notes) {
+    public Activity(LocalDate date, String type, float amount, String notes) {
         this.date = date;
         this.type = type;
         this.amount = amount;
@@ -24,8 +26,8 @@ public class Activity {
 
     public Long getId() {return id;}
 
-    public String getDate() {return date;}
-    public void setDate(String date) {this.date = date;}
+    public LocalDate getDate() {return date;}
+    public void setDate(LocalDate date) {this.date = date;}
     public String getType() {return type;}
     public void setType(String type) {this.type = type;}
     public float getAmount() {return amount;}
