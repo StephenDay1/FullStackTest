@@ -5,11 +5,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 import java.time.LocalTime;
-import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*") // Allows frontend to access this endpoint
 @RestController
@@ -29,7 +29,7 @@ public class APIController {
     public List<Activity> getAllActivities() {
         return repository.findAll().stream()
                 .sorted(Comparator.comparing(Activity::getDate))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @DeleteMapping("/api/activities/{id}")
@@ -42,13 +42,28 @@ public class APIController {
         }
     }
 
+    /**
+     * Returns a {@link List<String>} of all types in the repository
+     * @return {@link List<String>} types
+     */
+    @GetMapping("/api/activities/types")
+    public List<String> getTypes() {
+        List<String> types = new ArrayList<>();
+        for (Activity activity : repository.findAll().stream().toList()) {
+            if (!types.contains(activity.getType())) {
+                types.add(activity.getType());
+            }
+        }
+        return types;
+    }
+
     @GetMapping("/api/activities/filter")
     public List<Activity> filterActivities(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
             @RequestParam(required = false) List<String> types) {
 
-        if (start != null && types != null) {
+        if (types != null && start != null && end != null) {
             return repository.findByDateBetweenAndTypeIn(start, end, types);
         } else if (start != null && end != null) {
             return repository.findByDateBetween(start, end);
@@ -57,6 +72,24 @@ public class APIController {
         } else {
             return repository.findAll();
         }
+    }
+
+    @GetMapping("/api/activities/type_total")
+    public double getTypeTotal(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
+            String type) {
+        double typeTotal = 0;
+        if (start != null && end != null) {
+            for (Activity activity : repository.findByDateBetweenAndType(start, end, type).stream().toList()) {
+                typeTotal += activity.getAmount();
+            }
+        } else {
+            for (Activity activity : repository.findByType(type).stream().toList()) {
+                typeTotal += activity.getAmount();
+            }
+        }
+        return typeTotal;
     }
 
 

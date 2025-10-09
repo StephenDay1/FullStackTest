@@ -87,6 +87,8 @@ form select {
 #formRow td {
     padding: 0;
     height: calc(25px + 16px);
+    position: sticky;
+    top: 0;
 }
 
 /* Hide arrows of number input */
