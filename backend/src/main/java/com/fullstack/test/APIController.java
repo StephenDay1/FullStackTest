@@ -49,7 +49,7 @@ public class APIController {
     @GetMapping("/api/activities/types")
     public List<String> getTypes() {
         List<String> types = new ArrayList<>();
-        for (Activity activity : repository.findAll().stream().toList()) {
+        for (Activity activity : repository.findAll()) {
             if (!types.contains(activity.getType())) {
                 types.add(activity.getType());
             }
@@ -62,16 +62,18 @@ public class APIController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
             @RequestParam(required = false) List<String> types) {
-
+        List<Activity> activities;
         if (types != null && start != null && end != null) {
-            return repository.findByDateBetweenAndTypeIn(start, end, types);
+            activities = repository.findByDateBetweenAndTypeIn(start, end, types);
         } else if (start != null && end != null) {
-            return repository.findByDateBetween(start, end);
+            activities = repository.findByDateBetween(start, end);
         } else if (types != null) {
-            return repository.findByTypeIn(types);
+            activities = repository.findByTypeIn(types);
         } else {
-            return repository.findAll();
+            activities = repository.findAll();
         }
+        activities.sort(Comparator.comparing(Activity::getDate));
+        return activities;
     }
 
     @GetMapping("/api/activities/type_total")

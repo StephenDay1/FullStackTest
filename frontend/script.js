@@ -1,3 +1,16 @@
+// bool = isExpense
+ACTIVITY_TYPES = {
+  "Income": false, 
+  "Other Income": false, 
+  "Tithing": true, 
+  "Gas": true, 
+  "Living": true, 
+  "Groceries": true, 
+  "Social": true, 
+  "Dates": true, 
+  "Fun": true,
+};
+
 function openTab(event, tabId) {
   // Declare all variables
   var i, tabWindow, tablinks;
@@ -25,30 +38,43 @@ function loadSummary() {
     .then(response => response.json())
     .then(data => {
       innerHTML = "";
+      incomeTotal = 0;
+      expenseTotal = 0;
+
+      fetch_promises = []
       data.forEach(type => {
-        console.log(type);
         const params = new URLSearchParams();
         params.append("type", type);
         // if (startDate) params.append("start", startDate);
         // if (endDate) params.append("end", endDate);
-        innerHTML += `<div id="summary-${type}"></div>`;
-
-        fetch(`http://localhost:8080/api/activities/type_total?${params.toString()}`)
+        document.getElementById('summaryTable').innerHTML += `<tr id="summary-${type}"></tr>`;
+        let fetch_promise = fetch(`http://localhost:8080/api/activities/type_total?${params.toString()}`)
           .then(response => response.json())
           .then(total => {
-            console.log(`Total for ${type}: $${total.toFixed(2)}`);
-            document.getElementById(`summary-${type}`).textContent = `${type}: $${total.toFixed(2)}`;
+            document.getElementById(`summary-${type}`).innerHTML = `<td>${type}</td><td>$${total.toFixed(2)}</td>`;
+
+            if (ACTIVITY_TYPES[type]) {
+              expenseTotal += total;
+            } else {
+              incomeTotal += total;
+            }
           })
           .catch(error => {
             console.error("Error fetching income total:", error);
             // document.getElementById('incomeTotal').textContent = "Error";
           });
+        fetch_promises.push(fetch_promise);
+
       });
-      console.log(innerHTML);
-      document.getElementById('summaryTotals').innerHTML = innerHTML;
+      Promise.all(fetch_promises).then(() => {
+        document.getElementById('totalsTable').innerHTML = `
+          <tr><td><strong>Total Income:</strong></td><td>$${incomeTotal.toFixed(2)}</td></tr>
+          <tr><td><strong>Total Expenses:</strong></td><td>$${expenseTotal.toFixed(2)}</td></tr>
+          <tr><td><strong>Net Total:</strong></td><td>$${(incomeTotal - expenseTotal).toFixed(2)}</td></tr>
+        `;
+      });
     });
 }
-
 loadSummary();
 
 function loadActivities() {
@@ -56,6 +82,7 @@ function loadActivities() {
     .then(response => response.json())
     .then(data => {
       const tbody = document.querySelector('#activityTable tbody');
+      // TODO: autogenerate the options from ACTIVITY_TYPES
       tbody.innerHTML = `
         <tr id="formRow">
         <td><input type="date" id="activityDate" name="activityDate" required></td>
@@ -111,8 +138,6 @@ function loadActivities() {
         }
 
         e.target.value = '$' + value; // Add currency symbol
-        // console.log(value)
-        // e.target.value = value
       });
       currencyInput.addEventListener('focusout', function(e) {
         // let value = e.target.value.replace(/[^0-9.]/g, ''); // Remove non-numeric except decimal
@@ -177,6 +202,7 @@ document.getElementById('activityForm').addEventListener('submit', function(e) {
   .then(response => response.json())
   .then(() => {
     loadActivities(); // Refresh the table
+    loadSummary();
   });
 });
 
