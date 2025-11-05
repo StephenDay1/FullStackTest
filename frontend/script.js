@@ -81,7 +81,7 @@ function loadActivities() {
   fetch('http://localhost:8080/api/activities')
     .then(response => response.json())
     .then(data => {
-      const tbody = document.querySelector('#activityTable tbody');
+      const tbody = document.querySelector('#activityLogTable tbody');
       // TODO: autogenerate the options from ACTIVITY_TYPES
       tbody.innerHTML = `
         <tr id="formRow">
@@ -177,7 +177,7 @@ function deleteActivity(id) {
 }
 
 // Runs after successful form submission
-document.getElementById('activityForm').addEventListener('submit', function(e) {
+document.getElementById('activityLogForm').addEventListener('submit', function(e) {
   e.preventDefault();
   activityDateElement = document.getElementById('activityDate');
   activityTypeElement = document.getElementById('activityType');
