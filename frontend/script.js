@@ -30,8 +30,30 @@ function openTab(event, tabId) {
   // Show the current tab, and add an "active" class to the button that opened the tab
   document.getElementById(tabId).style.display = "block";
   event.currentTarget.className += " active";
+
+  window.location.hash = '#'+tabId;
 }
-document.getElementById("default").click();
+// Open to proper tab on page load
+if (window.location.hash.length  > 1) {
+  
+  tabId = window.location.hash.substring(1);
+  // Get all elements with class="tabWindow" and hide them
+  tabWindow = document.getElementsByClassName("tabWindow");
+  for (i = 0; i < tabWindow.length; i++) {
+    tabWindow[i].style.display = "none";
+  }
+
+  // Get all elements with class="tablinks" and remove the class "active"
+  tablinks = document.getElementsByClassName("tabLink");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+
+  // Show the current tab, and add an "active" class to the button that opened the tab
+  document.getElementById(tabId).style.display = "block";
+} else {
+  document.getElementById("default").click();
+}
 
 function loadSummary() {
   fetch('http://localhost:8080/api/activities/types')
@@ -48,7 +70,7 @@ function loadSummary() {
         // if (startDate) params.append("start", startDate);
         // if (endDate) params.append("end", endDate);
         document.getElementById('summaryTable').innerHTML += `<tr id="summary-${type}"></tr>`;
-        let fetch_promise = fetch(`http://localhost:8080/api/activities/type_total?${params.toString()}`)
+        let all_time_fetch_promise = fetch(`http://localhost:8080/api/activities/type_total?${params.toString()}`)
           .then(response => response.json())
           .then(total => {
             document.getElementById(`summary-${type}`).innerHTML = `<td>${type}</td><td>$${total.toFixed(2)}</td>`;
@@ -63,14 +85,47 @@ function loadSummary() {
             console.error("Error fetching income total:", error);
             // document.getElementById('incomeTotal').textContent = "Error";
           });
-        fetch_promises.push(fetch_promise);
+        fetch_promises.push(all_time_fetch_promise);
+
+
+        monthIncomeTotal = 0;
+        monthExpenseTotal = 0;
+        // TODO: Add date
+        const today = new Date();
+        const oneMonthAgo = new Date(today);
+        oneMonthAgo.setMonth(today.getMonth() - 1);
+
+        const monthParams = new URLSearchParams();
+        monthParams.append("start", oneMonthAgo.toISOString().split("T")[0]);
+        monthParams.append("end", today.toISOString().split("T")[0]);
+        monthParams.append("type", type);
+
+        let month_fetch_promise = fetch(`http://localhost:8080/api/activities/type_total?${monthParams.toString()}`)
+          .then(response => response.json())
+          .then(total => {
+            // document.getElementById(`summary-${type}`).innerHTML = `<td>${type}</td><td>$${total.toFixed(2)}</td>`;
+
+            if (ACTIVITY_TYPES[type]) {
+              monthExpenseTotal += total;
+            } else {
+              monthIncomeTotal += total;
+            }
+          })
+          .catch(error => {
+            console.error("Error fetching income total:", error);
+            // document.getElementById('incomeTotal').textContent = "Error";
+          });
+        fetch_promises.push(month_fetch_promise);
 
       });
       Promise.all(fetch_promises).then(() => {
-        document.getElementById('totalsTable').innerHTML = `
-          <tr><td><strong>Total Income:</strong></td><td>$${incomeTotal.toFixed(2)}</td></tr>
-          <tr><td><strong>Total Expenses:</strong></td><td>$${expenseTotal.toFixed(2)}</td></tr>
-          <tr><td><strong>Net Total:</strong></td><td>$${(incomeTotal - expenseTotal).toFixed(2)}</td></tr>
+        document.getElementById('alltimeTable').innerHTML = `
+          <tr><td><strong>All Time Income:</strong></td><td>$${incomeTotal.toFixed(2)}</td></tr>
+          <tr><td><strong>All Time Expenses:</strong></td><td>$${expenseTotal.toFixed(2)}</td></tr>
+          <tr><td><strong>All Time Total:</strong></td><td>$${(incomeTotal - expenseTotal).toFixed(2)}</td></tr>
+          <tr><td><strong>Month to Date Income:</strong></td><td>$${monthIncomeTotal.toFixed(2)}</td></tr>
+          <tr><td><strong>Month to Date Expenses:</strong></td><td>$${monthExpenseTotal.toFixed(2)}</td></tr>
+          <tr><td><strong>Month to Date Total:</strong></td><td>$${(monthIncomeTotal - monthExpenseTotal).toFixed(2)}</td></tr>
         `;
       });
     });
@@ -201,8 +256,10 @@ document.getElementById('activityLogForm').addEventListener('submit', function(e
   })
   .then(response => response.json())
   .then(() => {
-    loadActivities(); // Refresh the table
+    // Refresh the table and all data
+    loadActivities();
     loadSummary();
+    updateChartData();
   });
 });
 
